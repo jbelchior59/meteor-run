@@ -1,9 +1,9 @@
 package files;
 
+import javax.swing.SwingUtilities;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -22,6 +22,7 @@ public class GameEngine implements KeyListener, Runnable{
     private GUI g;
     private Behaviour p1, p2;
     private final Set<Integer> keysPressed = new HashSet<>();
+    private volatile boolean running = true;
 
     public GameEngine(int n, int hashcodePlayer, int mode) {
         assert(n >= 0);
@@ -31,12 +32,17 @@ public class GameEngine implements KeyListener, Runnable{
         this.hashcodePlayer1 = hashcodePlayer;
         this.hashcodePlayer2 = 0;
         this.mode = mode;
+        g.setFocusable(true);
         g.addKeyListener(this);
     }
 
     public void start(){
         Thread gameThread = new Thread(this);
         gameThread.start();
+    }
+
+    public void stop(){
+        running = false;
     }
 
     public void setHashcodePlayer2(int hashcodePlayer2){this.hashcodePlayer2 = hashcodePlayer2;}
@@ -66,11 +72,12 @@ public class GameEngine implements KeyListener, Runnable{
             }
             go.setTranform((Transform) t);
         });
-        while(true) {
+        while(running) {
             try {
                 Thread.sleep(16);
             } catch (InterruptedException e) {
-                throw new RuntimeException();
+                Thread.currentThread().interrupt();
+                break;
             }
             objects.replace(hashcodePlayer1, p1.moveSet(keysPressed));
             index = objects.keySet();
@@ -99,8 +106,19 @@ public class GameEngine implements KeyListener, Runnable{
     }
 
     @Override public void keyTyped(KeyEvent e) {}
-    @Override public void keyPressed(KeyEvent e) {}
-    @Override public void keyReleased(KeyEvent e) {}
 
-    public Container getGUI(){return g;}
+    @Override
+    public void keyPressed(KeyEvent e) {
+        keysPressed.add(e.getKeyCode());
+    }
+
+    @Override
+    public void keyReleased(KeyEvent e) {
+        keysPressed.remove(e.getKeyCode());
+    }
+
+    public Container getGUI(){
+        SwingUtilities.invokeLater(g::requestFocusInWindow);
+        return g;
+    }
 }
