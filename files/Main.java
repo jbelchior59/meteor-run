@@ -4,6 +4,8 @@ import javax.imageio.ImageIO;
 import javax.sound.sampled.*;
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 
@@ -36,7 +38,13 @@ public class Main extends JPanel {
         JButton multi = new JButton("Multiplayer");
         JButton exit = new JButton("Exit Game");
         jf.setSize(windowWidth, windowHeigth);
-        jf.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+        jf.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
+        jf.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                shutdown();
+            }
+        });
         jf.setLocationRelativeTo(null);
 
         jl.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -62,7 +70,7 @@ public class Main extends JPanel {
         exit.setAlignmentX(Component.CENTER_ALIGNMENT);
         exit.setMaximumSize(new Dimension(200, 60));
         exit.setBorder(BorderFactory.createEmptyBorder(30, 0, 30, 0));
-        exit.addActionListener(e -> System.exit(0));
+        exit.addActionListener(e -> shutdown());
         jp.add(exit);
 
         jf.add(jp);
@@ -91,6 +99,22 @@ public class Main extends JPanel {
             backgroundMusic = null;
             System.err.println("Audio indisponível: " + e.getMessage());
         }
+    }
+
+    private void closeClip(Clip clip) {
+        if (clip != null) {
+            clip.stop();
+            clip.flush();
+            clip.close();
+        }
+    }
+
+    private void shutdown() {
+        if (ge != null) ge.stop();
+        closeClip(starterClip);
+        closeClip(backgroundMusic);
+        jf.dispose();
+        System.exit(0);
     }
 
     private void startGame(int mode) {
