@@ -2,14 +2,11 @@ package files;
 
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import java.util.HashSet;
 import java.util.Set;
 
 public class Behaviour implements KeyListener {
-    private Set<Integer> keysPressed = new HashSet<>();
-    private GameObject go;
+    private final GameObject go;
     private static final double MOVE_SPEED = 5.0;
-    private static final double ROTATE_SPEED = 5.0;
 
     public Behaviour(GameObject go){
         this.go = go;
@@ -17,11 +14,10 @@ public class Behaviour implements KeyListener {
 
     public GameObject moveSet(Set<Integer> keys){
         Transform t = (Transform) go.transform();
-        if (keysPressed.contains(KeyEvent.VK_A)) t.move(new Ponto(-MOVE_SPEED, 0), 0);
-        if (keysPressed.contains(KeyEvent.VK_D)) t.move(new Ponto(MOVE_SPEED, 0), 0);
-        if (keysPressed.contains(KeyEvent.VK_W)) t.move(new Ponto(0, -MOVE_SPEED), 0);
-        if (keysPressed.contains(KeyEvent.VK_S)) t.move(new Ponto(0, MOVE_SPEED), 0);
-        if(keysPressed.contains(KeyEvent.VK_SPACE)) ;
+        if (keys.contains(KeyEvent.VK_A)) t.move(new Ponto(-MOVE_SPEED, 0), 0);
+        if (keys.contains(KeyEvent.VK_D)) t.move(new Ponto(MOVE_SPEED, 0), 0);
+        if (keys.contains(KeyEvent.VK_W)) t.move(new Ponto(0, -MOVE_SPEED), 0);
+        if (keys.contains(KeyEvent.VK_S)) t.move(new Ponto(0, MOVE_SPEED), 0);
         go.setTranform(t);
         return go;
     }
