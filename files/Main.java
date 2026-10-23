@@ -2,40 +2,42 @@ package files;
 
 import javax.imageio.ImageIO;
 import javax.sound.sampled.*;
-import javax.sound.sampled.Clip;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.IOException;
 
 public class Main extends JPanel {
-    private JFrame jf = new JFrame();
+    private final JFrame jf = new JFrame("Meteor Run");
     private GameEngine ge;
-    private Clip starterClip, backgorundMusic;
-    public final static int windowWidth = 600, windowHeigth = 550;
-    public final static Ponto spawnPoint = new Ponto(200, 400);
+    private Clip starterClip, backgroundMusic;
+    public static final int windowWidth = 600, windowHeigth = 550;
+    public static final Ponto spawnPoint = new Ponto(200, 400);
 
-    public Main(){}
+    public Main() {}
 
     private void mainMenu() throws IOException {
-        JPanel jp = new JPanel(){
-            private BufferedImage backGround = ImageIO.read(new File(
-                    "src/resources/Images/background.png"
-            ));
+        JPanel jp = new JPanel() {
+            private final BufferedImage backGround = ImageIO.read(
+                    Main.class.getResource("/resources/Images/background.png")
+            );
 
             @Override
             public void paintComponent(Graphics g) {
                 super.paintComponent(g);
                 Graphics2D g2 = (Graphics2D) g;
-                g2.drawImage(backGround, 0 , 0, backGround.getWidth(), backGround.getHeight(), null);
+                g2.drawImage(backGround, 0, 0, backGround.getWidth(), backGround.getHeight(), null);
             }
         };
         jp.setLayout(new BoxLayout(jp, BoxLayout.Y_AXIS));
 
         JLabel jl = new JLabel("Meteor Run");
-        JButton single = new JButton("SinglePlayer"), exit = new JButton("Exit Game"), multi = new JButton("Multiplayer");
-        jf.setSize((int) windowWidth, (int) windowHeigth);
+        JButton single = new JButton("SinglePlayer");
+        JButton multi = new JButton("Multiplayer");
+        JButton exit = new JButton("Exit Game");
+        jf.setSize(windowWidth, windowHeigth);
+        jf.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+        jf.setLocationRelativeTo(null);
 
         jl.setAlignmentX(Component.CENTER_ALIGNMENT);
         jl.setFont(new Font("Pacifico", Font.BOLD, 50));
@@ -45,14 +47,14 @@ public class Main extends JPanel {
 
         single.setAlignmentX(Component.CENTER_ALIGNMENT);
         single.setMaximumSize(new Dimension(200, 60));
-        single.setBorder(BorderFactory.createEmptyBorder(30, 0, 30,0));
+        single.setBorder(BorderFactory.createEmptyBorder(30, 0, 30, 0));
         single.addActionListener(e -> startGame(0));
         jp.add(single);
         jp.add(Box.createRigidArea(new Dimension(0, 30)));
 
         multi.setAlignmentX(Component.CENTER_ALIGNMENT);
         multi.setMaximumSize(new Dimension(200, 60));
-        multi.setBorder(BorderFactory.createEmptyBorder(30, 0, 30,0));
+        multi.setBorder(BorderFactory.createEmptyBorder(30, 0, 30, 0));
         multi.addActionListener(e -> startGame(1));
         jp.add(multi);
         jp.add(Box.createRigidArea(new Dimension(0, 30)));
@@ -64,36 +66,50 @@ public class Main extends JPanel {
         jp.add(exit);
 
         jf.add(jp);
+        loadAudio();
+        jf.setVisible(true);
+    }
+
+    private void loadAudio() {
         try {
             AudioInputStream startStream = AudioSystem.getAudioInputStream(
-                    new File("src/resources/Sounds/starter_music.wav")
+                    Main.class.getResource("/resources/Sounds/starter_music.wav")
             );
             AudioInputStream backgroundStream = AudioSystem.getAudioInputStream(
-                    new File("src/resources/Sounds/background_music.wav")
+                    Main.class.getResource("/resources/Sounds/background_music.wav")
             );
+
             starterClip = AudioSystem.getClip();
             starterClip.open(startStream);
             starterClip.loop(Clip.LOOP_CONTINUOUSLY);
             starterClip.start();
-            backgorundMusic = AudioSystem.getClip();
-            backgorundMusic.open(backgroundStream);
-        } catch (Exception e) {
-            System.err.println("Erro ao carregar starter_music: " + e.getMessage());
-        }
 
-        jf.setVisible(true);
+            backgroundMusic = AudioSystem.getClip();
+            backgroundMusic.open(backgroundStream);
+        } catch (Exception e) {
+            starterClip = null;
+            backgroundMusic = null;
+            System.err.println("Audio indisponível: " + e.getMessage());
+        }
     }
 
-    private void startGame(int mode){
-        GameObject wall1 = new GameObject(String.format("parede\n0 0 1 0 0\n-30 0 30 0 30 %s -30 %s", Main.windowHeigth, Main.windowHeigth));
-        GameObject wall2 = new GameObject(String.format("parede\n0 0 2 0 0\n-0 0 30 0 30 %s -30 %s", Main.windowHeigth, Main.windowHeigth));
+    private void startGame(int mode) {
+        GameObject wall1 = new GameObject(String.format(
+                "parede\n0 0 1 0 0\n-30 0 30 0 30 %s -30 %s",
+                Main.windowHeigth, Main.windowHeigth));
+        GameObject wall2 = new GameObject(String.format(
+                "parede\n0 0 2 0 0\n-0 0 30 0 30 %s -30 %s",
+                Main.windowHeigth, Main.windowHeigth));
+
         jf.getContentPane().removeAll();
-        starterClip.stop();
-        backgorundMusic.loop(Clip.LOOP_CONTINUOUSLY);
-        backgorundMusic.start();
-        if(mode == 0){
-            String s = "nave\n0 0 1 0 0\n0 -2 -2 2 2 2";
-            GameObject go = new GameObject(s);
+        if (starterClip != null) starterClip.stop();
+        if (backgroundMusic != null) {
+            backgroundMusic.loop(Clip.LOOP_CONTINUOUSLY);
+            backgroundMusic.start();
+        }
+
+        if (mode == 0) {
+            GameObject go = new GameObject("nave\n0 0 1 0 0\n0 -2 -2 2 2 2");
             ge = new GameEngine(3, go.hashCode(), 0);
             ge.add(go);
             ge.add(wall1);
@@ -102,10 +118,9 @@ public class Main extends JPanel {
             jf.revalidate();
             jf.repaint();
             ge.start();
-        }else{
-            String p1 = "nave\n0 0 1 0 0\n0 -2 -2 2 2 2";
-            String p2 = "nave\n0 0 1 0 0\n0 -2 -2 2 2 2";
-            GameObject go1 = new GameObject(p1), go2 = new GameObject(p2);
+        } else {
+            GameObject go1 = new GameObject("nave\n0 0 1 0 0\n0 -2 -2 2 2 2");
+            GameObject go2 = new GameObject("nave\n0 0 1 0 0\n0 -2 -2 2 2 2");
             ge = new GameEngine(5, go1.hashCode(), 1);
             ge.setHashcodePlayer2(go2.hashCode());
             ge.add(go1);
@@ -120,7 +135,6 @@ public class Main extends JPanel {
     }
 
     public static void main(String[] args) throws IOException {
-        Main m = new Main();
-        m.mainMenu();
+        new Main().mainMenu();
     }
 }
