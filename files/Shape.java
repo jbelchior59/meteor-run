@@ -1,39 +1,81 @@
 package files;
 
 import javax.imageio.ImageIO;
+import java.awt.*;
+import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.IOException;
 
 public class Shape {
     private BufferedImage img;
-    private final String name;
+    private String name;
 
-    public Shape(String name) {
+    public Shape(String name){
         this.name = name;
         getImage();
     }
 
-    public BufferedImage img() { return this.img; }
+    public BufferedImage img(){return this.img;}
 
-    private void getImage() {
-        String resource;
-        switch (name) {
-            case "asteroid" -> resource = "/resources/Images/asteroid.png";
-            case "nave" -> resource = "/resources/Images/nave.png";
-            case "nave_inimiga" -> resource = "/resources/Images/nave_inimiga.png";
-            case "nave_boss" -> resource = "/resources/Images/nave_boss.png";
-            case "nave_mae" -> resource = "/resources/Images/nave_mae.png";
-            case "parede" -> resource = "/resources/Images/parede.png";
-            case "shield" -> resource = "/resources/Images/shield.png";
-            case "speed_misseis" -> resource = "/resources/Images/speed_misseis.png";
-            case "speed_nave" -> resource = "/resources/Images/speed_nave.png";
-            default -> throw new IllegalArgumentException("gameobject invalido");
-        }
-
-        try {
-            img = ImageIO.read(Shape.class.getResource(resource));
-        } catch (IOException | IllegalArgumentException e) {
-            throw new RuntimeException("Nao encontrou o recurso: " + resource, e);
+    private void getImage(){
+        switch(name){
+            case "asteroid":{
+                try{ img = ImageIO.read(Shape.class.getResource("/resources/Images/asteroid.png")); }
+                catch (IOException e){ throw new RuntimeException(); }
+                break;
+            }
+            case "nave":{
+                try{ img = ImageIO.read(Shape.class.getResource("/resources/Images/nave.png")); }
+                catch (IOException e){ throw new RuntimeException("nao encontrou o ficheiro" + e.getMessage()); }
+                break;
+            }
+            case "nave2":{
+                try{ img = ImageIO.read(Shape.class.getResource("/resources/Images/nave2.png")); }
+                catch (IOException e){ throw new RuntimeException("nao encontrou o ficheiro" + e.getMessage()); }
+                break;
+            }
+            case "nave_inimiga":{
+                try{ img = ImageIO.read(Shape.class.getResource("/resources/Images/nave_inimiga.png")); }
+                catch (IOException e){ throw new RuntimeException(); }
+                break;
+            }
+            case "nave_boss":{
+                try{ img = ImageIO.read(Shape.class.getResource("/resources/Images/nave_boss.png")); }
+                catch (IOException e){ throw new RuntimeException(); }
+                break;
+            }
+            case "nave_mae":{
+                try{ img = ImageIO.read(Shape.class.getResource("/resources/Images/nave_mae.png")); }
+                catch (IOException e){ throw new RuntimeException(); }
+                break;
+            }
+            case "parede":{
+                try{ img = ImageIO.read(Shape.class.getResource("/resources/Images/parede.png")); }
+                catch (IOException e){ throw new RuntimeException(); }
+                break;
+            }
+            case "shield":{
+                try{ img = ImageIO.read(Shape.class.getResource("/resources/Images/shield.png")); }
+                catch (IOException e){ throw new RuntimeException(); }
+                break;
+            }
+            case "speed_misseis":{
+                try{ img = ImageIO.read(Shape.class.getResource("/resources/Images/speed_misseis.png")); }
+                catch (IOException e){ throw new RuntimeException(); }
+                break;
+            }
+            case "speed_nave":{
+                try{ img = ImageIO.read(Shape.class.getResource("/resources/Images/speed_nave.png")); }
+                catch (IOException e){ throw new RuntimeException(); }
+                break;
+            }
+            case "laser" , "laser_inimigo":{
+                try{ img = ImageIO.read(Shape.class.getResource("/resources/Images/laser.png")); }
+                catch (IOException e){ throw new RuntimeException(); }
+                break;
+            }
+            default: throw new IllegalArgumentException("gameobject invalido");
         }
     }
 }
